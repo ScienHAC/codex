@@ -4,6 +4,8 @@ use std::time::Duration;
 
 use codex_protocol::shell_environment::scrub_non_inheritable_env_vars;
 #[cfg(windows)]
+use codex_utils_pty::CREATE_NO_WINDOW;
+#[cfg(windows)]
 use codex_utils_pty::JobObject;
 #[cfg(unix)]
 use codex_utils_pty::process_group::kill_process_group;
@@ -47,7 +49,9 @@ fn spawn_git_command(command: &mut Command) -> Option<(Child, KillGitProcessTree
         Ok((child, job)) => (child, Some(job)),
         Err(_) => {
             // A failed contained spawn leaves CREATE_SUSPENDED on the command.
-            command.creation_flags(0);
+            // Clear it but keep CREATE_NO_WINDOW: creation_flags replaces
+            // rather than adds to the flags already set.
+            command.creation_flags(CREATE_NO_WINDOW);
             (command.spawn().ok()?, None)
         }
     };

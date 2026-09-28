@@ -17,6 +17,8 @@ use codex_protocol::shell_environment::is_non_inheritable_env_var;
 #[cfg(unix)]
 use codex_utils_pty::Command;
 #[cfg(windows)]
+use codex_utils_pty::CREATE_NO_WINDOW;
+#[cfg(windows)]
 use codex_utils_pty::JobObject;
 use futures::future::try_join;
 use tokio::io::AsyncWriteExt;
@@ -228,7 +230,9 @@ pub(crate) async fn run_command(
             Ok(child) => Ok(child),
             Err(_) => {
                 process_tree_job = None;
-                command.creation_flags(0);
+                // Clear CREATE_SUSPENDED but keep CREATE_NO_WINDOW: creation_flags
+                // replaces rather than adds to the flags already set.
+                command.creation_flags(CREATE_NO_WINDOW);
                 command.spawn()
             }
         },
