@@ -52,6 +52,9 @@ pub use pty::conpty_supported;
 pub use pty::spawn_process as spawn_pty_process;
 #[cfg(windows)]
 pub use win::JobObject;
+/// Flag preventing Windows from allocating a console window for a spawned child.
+#[cfg(windows)]
+pub use winapi::um::winbase::CREATE_NO_WINDOW;
 #[cfg(windows)]
 pub use win::PsuedoCon;
 #[cfg(windows)]
